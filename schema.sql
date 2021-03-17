@@ -46,4 +46,16 @@ values ("Jennifer", "Mendez", "1"), ("Eduardo", "Mendez", 2);
 
 SELECT * FROM employee;
 
+INSERT INTO department SET department_name = "Marketing and Video";
+
+SELECT * FROM department;
+
+INSERT INTO role SET title = "Office Manager", salary = "35000";
+
+SELECT * FROM role;
+
+UPDATE employee SET first_name = "Danae" WHERE id = 1;
+
+
+
 

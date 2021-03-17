@@ -62,17 +62,131 @@ function askFirstQuestion() {
       }
     });
 }
-// build a function that will allow me to retrieve the questions regarding the chosen choice
-// adding department function
+// if use chose add a department
+// create a function to prompt the user the name of new dpt
 function add_department() {
-  console.log("departments here");
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the new department name?",
+        name: "department_name",
+      },
+    ])
+    .then((responses) => {
+      console.log(responses);
+      insertDpt(responses);
+    });
 }
+
+function insertDpt(data) {
+  connection.query("INSERT INTO department SET ?", data, (err) => {
+    if (err) return console.error(err);
+    console.log("your department has been created");
+    //console.log(data);
+    askFirstQuestion();
+  });
+}
+// ADDING A NEW ROLE
 function addRoles() {
-  console.log("roles here");
+  connection.query('SELECT * FROM department', (err, results) => {
+    if (err) console.error(err);
+    console.log(results);
+    prompt_Roles(results);
+  });
 }
+
+function prompt_Roles(results) {
+  let allDepartments = results.map((department) => {
+    return { name: department.department_name, value: department.id };
+  });
+  console.log("aqui estan todos los departments");
+  console.log(allDepartments);
+  {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the new title?",
+          name: "title",
+        },
+        {
+          type: "input",
+          message: "add new salary",
+          name: "salary",
+        },
+
+        {
+          type: "list",
+          message: "what is the department ID",
+          name: "department_id",
+          choices: allDepartments
+        },
+      ])
+      .then((responses) => {
+        // console.log(responses);
+        insertRole(responses);
+      });
+  }
+}
+function insertRole(data) {
+  connection.query('INSERT INTO role SET ?', data, (err) => {
+    if (err) return console.error(err);
+    console.log(data);
+    console.log("role added");
+    askFirstQuestion();
+  });
+}
+// ADD EMPLOYEE
 function addEmployees() {
-  console.log("employees here");
+  connection.query('SELECT * FROM role', (err, results) => {
+    if (err) console.error(err);
+    console.log(results);
+    prompt_employee(results);
+  });
 }
+function prompt_employee(results){
+  let allroles = results.map((role) => {
+    return { name: role.title, value: role.id };
+  });
+  console.log(allroles);
+  {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the name of the new employee?",
+          name: "first_name",
+        },
+        {
+          type: "input",
+          message: "what is the last name of the new employee",
+          name: "last_name",
+        },
+
+        {
+          type: "list",
+          message: "what is the role",
+          name: "role_id",
+          choices: allroles
+        },
+      ])
+      .then((responses) => {
+        // console.log(responses);
+        insertEmployee(responses);
+      });
+  }
+}
+function insertEmployee(data) {
+  connection.query('INSERT INTO employee SET ?', data, (err) => {
+    if (err) return console.error(err);
+    console.log(data);
+    console.log("employee added");
+    askFirstQuestion();
+  });
+}
+
+
 // view departments Customer Service and Real Estate Agents
 function viewDepartments() {
   connection.query("SELECT * FROM department", (err, results) => {
@@ -92,5 +206,65 @@ function viewEmployees() {
   connection.query("SELECT * FROM employee", (err, results) => {
     if (err) console.log("error");
     console.table(results);
+  });
+}
+//Update employee role
+
+function updateEmployeesRoles() {
+  connection.query('SELECT * FROM employee', (err, results) => {
+    if (err) console.error(err);
+    allEmployees = results.map((data) => {
+      return {
+        name: data.first_name + '' + data.last_name,
+        value: { ...data },
+      };
+    });
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          message: 'Which employee are you updating?',
+          name: 'chosen',
+          choices: allEmployees,
+        },
+      ])
+      .then((answers) => {
+        let chosen = answers.chosen;
+        //console.log(answers.chosen);
+        updateRole(chosen);
+      });
+  });
+}
+function updateRole(chosen) {
+  connection.query('SELECT * FROM role', (err, results) => {
+    if (err) console.error(err);
+    allRoles = results.map((data) => {
+      return { name: data.title, value: data.id };
+    });
+    //console.log(allRoles);
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          message: 'What is this employee’s new role?',
+          name: 'role',
+          choices: allRoles,
+        },
+      ])
+      .then((answers) => {
+        let { role } = answers;
+        role = parseInt(role);
+        const setValue = { role_id: role };
+        const whereValue = { id: chosen.id };
+        connection.query(
+          'UPDATE employee SET ? WHERE ?',
+          [setValue, whereValue],
+          (err) => {
+            if (err) console.error(err);
+            console.log('Employee has been updated.');
+            askFirstQuestion();
+          }
+        );
+      });
   });
 }
