@@ -1,7 +1,5 @@
 # employeeTracker
 
-# Unit 12: MySQL
-
 ## Overview
 
 When using applications, the most important to our users is being able to store and retrieve data. This app will help to determine the best way to deliver data to the front-end via our server-side API. 
@@ -45,3 +43,4 @@ When using applications, the most important to our users is being able to store 
 ## Links
 
 * (https://github.com/jenniferjael/employeeTracker)
+* (https://youtu.be/2sxR4aQkmIY)
